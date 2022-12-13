@@ -3,7 +3,6 @@ package karn.mockapi.mockapi.security.config;
 import java.util.Arrays;
 import java.util.List;
 
-import karn.mockapi.mockapi.CustomCorsFilter;
 import karn.mockapi.mockapi.security.RestAuthenticationEntryPoint;
 import karn.mockapi.mockapi.security.auth.ajax.AjaxAuthenticationProvider;
 import karn.mockapi.mockapi.security.auth.ajax.AjaxLoginProcessingFilter;
@@ -103,7 +102,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(API_ROOT_URL).authenticated() // Protected API End-points
                 .and()
-                //.addFilterBefore(new CustomCorsFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(buildAjaxLoginProcessingFilter(AUTHENTICATION_URL), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(buildJwtTokenAuthenticationProcessingFilter(permitAllEndpointList,
                         API_ROOT_URL), UsernamePasswordAuthenticationFilter.class);
