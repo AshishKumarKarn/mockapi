@@ -23,7 +23,7 @@ public class GroceryController {
     private GroceryService groceryService;
 
     /**
-     * Access : http://localhost:8080/grocery/getAll
+     * Access : <a href="@link">http://localhost:8080/api/grocery/getAll</a>
      * */
     @RolesAllowed("ROLE_ADMIN")
     @RequestMapping("/getAll")

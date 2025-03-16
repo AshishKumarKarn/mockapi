@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -34,9 +34,7 @@ public class JwtTokenFactory {
     /**
      * Factory method for issuing new JWT Tokens.
      * 
-     * @param username
-     * @param roles
-     * @return
+     * @return JwtToken
      */
     public AccessJwtToken createAccessJwtToken(UserContext userContext) {
         if (StringUtils.isBlank(userContext.getUsername())) 
@@ -45,16 +43,15 @@ public class JwtTokenFactory {
         if (userContext.getAuthorities() == null || userContext.getAuthorities().isEmpty()) 
             throw new IllegalArgumentException("User doesn't have any privileges");
 
-        Claims claims = Jwts.claims().setSubject(userContext.getUsername());
-        claims.put("scopes", userContext.getAuthorities().stream().map(s -> s.toString()).collect(Collectors.toList()));
 
+        Claims claims = Jwts.claims().add("scopes", userContext.getAuthorities().stream().map(s -> s.toString()).collect(Collectors.toList())).subject(userContext.getUsername()).build();
         LocalDateTime currentTime = LocalDateTime.now();
         
         String token = Jwts.builder()
-          .setClaims(claims)
-          .setIssuer(settings.getTokenIssuer())
-          .setIssuedAt(Date.from(currentTime.atZone(ZoneId.systemDefault()).toInstant()))
-          .setExpiration(Date.from(currentTime
+          .claims(claims)
+          .issuer(settings.getTokenIssuer())
+          .issuedAt(Date.from(currentTime.atZone(ZoneId.systemDefault()).toInstant()))
+          .expiration(Date.from(currentTime
               .plusMinutes(settings.getTokenExpirationTime())
               .atZone(ZoneId.systemDefault()).toInstant()))
           .signWith(SignatureAlgorithm.HS512, settings.getTokenSigningKey())
@@ -70,15 +67,14 @@ public class JwtTokenFactory {
 
         LocalDateTime currentTime = LocalDateTime.now();
 
-        Claims claims = Jwts.claims().setSubject(userContext.getUsername());
-        claims.put("scopes", Arrays.asList(Scopes.REFRESH_TOKEN.authority()));
-        
+        Claims claims = Jwts.claims().add("scopes", List.of(Scopes.REFRESH_TOKEN.authority())).subject(userContext.getUsername()).build();
+
         String token = Jwts.builder()
-          .setClaims(claims)
-          .setIssuer(settings.getTokenIssuer())
-          .setId(UUID.randomUUID().toString())
-          .setIssuedAt(Date.from(currentTime.atZone(ZoneId.systemDefault()).toInstant()))
-          .setExpiration(Date.from(currentTime
+          .claims(claims)
+          .issuer(settings.getTokenIssuer())
+          .id(UUID.randomUUID().toString())
+          .issuedAt(Date.from(currentTime.atZone(ZoneId.systemDefault()).toInstant()))
+          .expiration(Date.from(currentTime
               .plusMinutes(settings.getRefreshTokenExpTime())
               .atZone(ZoneId.systemDefault()).toInstant()))
           .signWith(SignatureAlgorithm.HS512, settings.getTokenSigningKey())

@@ -24,7 +24,7 @@ public class RawAccessJwtToken implements JwtToken {
      */
     public Jws<Claims> parseClaims(String signingKey) {
         try {
-            return Jwts.parser().setSigningKey(signingKey).parseClaimsJws(this.token);
+            return Jwts.parser().setSigningKey(signingKey).build().parseClaimsJws(this.token);
         } catch (UnsupportedJwtException | MalformedJwtException | IllegalArgumentException | SignatureException ex) {
             logger.error("Invalid JWT Token", ex);
             throw new BadCredentialsException("Invalid JWT token: ", ex);
